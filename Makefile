@@ -1,28 +1,16 @@
 FILES_TO_LINT=tests/ *.py
 
 run:
-	python3 example.py
+	cargo run
 
 test:
-	python -m unittest discover -vvv ./tests -p '*.py' -b
+	cargo test --verbose
 
 lint:
-	black --check --diff $(FILES_TO_LINT)
-	flake8 $(FILES_TO_LINT)
-	mypy .
-	pytype $(FILES_TO_LINT)
+	cargo clippy --workspace --all-features --all-targets -- -A clippy::all -W clippy::correctness -W clippy::perf -W clippy::suspicious --deny=warnings
 
 coverage:
-	coverage run -m unittest discover -vvv ./tests -p '*.py' -b
-	coverage report -m
+	cargo llvm-cov --open
 
-html: coverage
-	coverage html
-	open htmlcov/index.html
-
-clean:
-	python setup.py clean
-	rm -rf build dist cdbpie.egg-info
-
-build: clean
-	python setup.py sdist bdist_wheel
+build: 
+	cargo build
