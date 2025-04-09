@@ -34,7 +34,7 @@ jobs:
       - name: Test
         env:
           RUST_LOG: ${{ runner.debug || '' }}
-        run: cargo test --verbose
+        run: make test
         timeout-minutes: 10
 
   clippy:
