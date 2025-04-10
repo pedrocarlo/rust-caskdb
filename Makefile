@@ -1,5 +1,3 @@
-FILES_TO_LINT=tests/ *.py
-
 run:
 	cargo run
 
