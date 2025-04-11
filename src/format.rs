@@ -20,14 +20,14 @@ pub enum FormatError {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-struct Record {
-    header: Header,
-    key: Vec<u8>,
-    value: Vec<u8>,
+pub struct Record {
+    pub header: Header,
+    pub key: Vec<u8>,
+    pub value: Vec<u8>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
-struct Header {
+pub struct Header {
     crc: u32,
     timestamp: u32,
     key_size: u32,
@@ -35,7 +35,7 @@ struct Header {
 }
 
 impl Header {
-    fn encode(self) -> Vec<u8> {
+    pub fn encode(self) -> Vec<u8> {
         let mut ret = Vec::with_capacity(HEADER_SIZE);
         ret.extend(self.crc.to_be_bytes());
         ret.extend(self.timestamp.to_be_bytes());
@@ -44,13 +44,30 @@ impl Header {
         ret
     }
 
-    fn decode(bytes: [u8; HEADER_SIZE]) -> Self {
+    pub fn decode(bytes: [u8; HEADER_SIZE]) -> Self {
         Self {
             crc: u32::from_be_bytes(bytes[0..4].try_into().unwrap()),
             timestamp: u32::from_be_bytes(bytes[4..8].try_into().unwrap()),
             key_size: u32::from_be_bytes(bytes[8..12].try_into().unwrap()),
             value_size: u32::from_be_bytes(bytes[12..16].try_into().unwrap()),
         }
+    }
+
+    pub fn timestamp(&self) -> u32 {
+        self.timestamp
+    }
+
+    pub fn key_size(&self) -> u32 {
+        self.key_size
+    }
+
+    pub fn value_size(&self) -> u32 {
+        self.value_size
+    }
+
+    /// Key Size + Value Size
+    pub fn total_size(&self) -> u32 {
+        self.key_size + self.value_size
     }
 }
 
@@ -96,20 +113,22 @@ impl Record {
 
         let key: Vec<u8> = data.drain(0..header.key_size as usize).collect();
         if key.len() != header.key_size as usize {
-            return Err(FormatError::Key(
-                key.len(),
-                header.key_size as usize,
-            ));
+            return Err(FormatError::Key(key.len(), header.key_size as usize));
         }
         let value: Vec<u8> = data.drain(0..header.value_size as usize).collect();
         if value.len() != header.value_size as usize {
-            return Err(FormatError::Value(
-                value.len(),
-                header.value_size as usize,
-            ));
+            return Err(FormatError::Value(value.len(), header.value_size as usize));
         }
 
         Ok(Self { header, key, value })
+    }
+
+    pub fn key(&self) -> &[u8] {
+        &self.key
+    }
+
+    pub fn value(&self) -> &[u8] {
+        &self.value
     }
 }
 

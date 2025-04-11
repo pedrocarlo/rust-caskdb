@@ -8,5 +8,6 @@ bincode = "2.0.1"
 chrono = "0.4.40"
 dashmap = "6.1.0"
 getrandom = "0.3.2"
+tempfile = "3.19.1"
 thiserror = "2.0.12"
 uuid = { version = "1.16.0", features = ["v4"] }
